@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Farm Finance & ROI – Organic Farming (Sikkim Crops)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #FFFFFF; color: #333; margin:0; padding:0; }
+    h1 { color: #3BAE5D; text-align:center; margin-bottom: 20px; }
+    .container { max-width: 980px; margin:30px auto; padding:25px; background:#FFFFFF; border-radius:14px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+    .nav { display:flex; gap:20px; justify-content:center; margin-bottom:20px; }
+    .nav button { padding:10px 20px; border:none; border-radius:12px; background:#E8F5E9; color:#2E7D32; font-weight:600; cursor:pointer; transition:0.3s; }
+    .nav button.active, .nav button:hover { background:#3BAE5D; color:white; }
+    .section { margin-bottom:25px; padding:20px; border-radius:12px; background:#FBFBFB; border:1px solid #C8E6C9; display:none; }
+    .input-group { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:15px; }
+    .input-group input, .input-group select { padding:12px; border-radius:12px; border:1px solid #a5d6a7; flex:1 1 180px; min-width:150px; }
+    button { padding:12px 25px; border:none; border-radius:12px; background-color:#3BAE5D; color:white; font-weight:600; cursor:pointer; transition:0.3s; }
+    button:hover { background-color:#2E7D32; }
+    .dashboard, .roi-section { background:#F7FFF7; padding:20px; border-radius:12px; margin-top:20px; border:1px solid #C8E6C9; }
+    canvas { margin-top:15px; }
+    #roiContent { display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
+    #roiDetails { flex:1; min-width:250px; background:#FFFFFF; padding:15px; border-radius:12px; border:1px solid #C8E6C9; }
+    #roiChartWrapper { width:200px; height:200px; background:#FFFFFF; padding:10px; border-radius:12px; border:1px solid #C8E6C9; }
+    #insight { margin-top:15px; font-weight:600; font-size:16px; color:#2E7D32; }
+    .chart-labels { margin-top:10px; display:flex; justify-content:space-between; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Farm Finance & ROI Calculator (Organic Farming – South Sikkim)</h1>
+
+    <div class="nav">
+      <button id="navExpenses" class="active">Expense Dashboard</button>
+      <button id="navROI">ROI & Profit Calculator</button>
+    </div>
+
+    <div id="expensesSection" class="section">
+      <h2>Add Farm Cost</h2>
+      <!-- Input Groups -->
+      <div class="input-group">
+        <select id="cropType">
+          <option value="Cardamom">Cardamom</option>
+          <option value="Orange">Orange</option>
+          <option value="Ginger">Ginger</option>
+          <option value="Tomato">Tomato</option>
+          <option value="Maize">Maize</option>
+        </select>
+        <input id="seedQty" type="number" placeholder="Seed/Plant Quantity" />
+        <input id="seedRate" type="number" placeholder="Seed/Plant Rate" />
+      </div>
+      <div class="input-group">
+        <select id="fertType">
+          <option value="Compost">Compost</option>
+          <option value="Organic Fertilizer">Organic Fertilizer</option>
+          <option value="Cow Manure">Cow Manure</option>
+          <option value="Vermicompost">Vermicompost</option>
+        </select>
+        <input id="fertQty" type="number" placeholder="Fertilizer Quantity" />
+        <input id="fertRate" type="number" placeholder="Fertilizer Rate" />
+        <input id="fertFreq" type="number" placeholder="Frequency" />
+      </div>
+      <div class="input-group">
+        <select id="waterType"><option value="Borewell">Borewell</option><option value="Tank">Tank</option><option value="Rainwater">Rainwater</option></select>
+        <input id="waterUnits" type="number" placeholder="Water Units" />
+        <input id="waterRate" type="number" placeholder="Water Rate" />
+      </div>
+      <div class="input-group">
+        <input id="elecUnits" type="number" placeholder="Pump Hours" />
+        <input id="elecRate" type="number" placeholder="kWh Rate" />
+      </div>
+      <div class="input-group">
+        <select id="pestType"><option value="Neem Oil">Neem Oil</option><option value="Bio Pesticide">Bio Pesticide</option></select>
+        <input id="pestQty" type="number" placeholder="Quantity" />
+        <input id="pestRate" type="number" placeholder="Rate" />
+      </div>
+      <button id="saveCosts">SAVE COST</button>
+
+      <div class="dashboard">
+        <h2>Expense Dashboard</h2>
+        <canvas id="costChart" width="400" height="200"></canvas>
+        <div class="chart-labels">
+          <span>Seeds</span><span>Fertilizer</span><span>Water</span><span>Electricity</span><span>Pesticides</span>
+        </div>
+        <div id="expenseDetails" style="margin-top:10px; font-size:14px; color:#333;"></div>
+        <button style="margin-top:15px; border:1px solid #3BAE5D; background:white; color:#3BAE5D;">View Breakdown</button>
+      </div>
+    </div>
+
+    <div id="roiSection" class="section">
+      <h2>ROI & Profit Calculator</h2>
+      <div class="input-group">
+        <input id="landArea" type="number" placeholder="Land Area" />
+        <select id="landUnit"><option value="acre">Acre</option><option value="hectare">Hectare</option></select>
+      </div>
+      <div class="input-group">
+        <input id="yieldKg" type="number" placeholder="Expected Yield (kg/tons)" />
+        <input id="pricePerKg" type="number" placeholder="Market Price per Kg" />
+      </div>
+      <button id="calcROI">Calculate Profit</button>
+      <div id="roiContent">
+        <div id="roiDetails">
+          <p id="profitAcre"></p>
+          <p id="profitHectare"></p>
+          <p id="roiPercent"></p>
+          <p id="breakEven"></p>
+          <div id="insight"></div>
+          <div id="expenseDetailsROI" style="margin-top:10px; font-size:14px; color:#333;"></div>
+        </div>
+        <div id="roiChartWrapper">
+          <canvas id="roiChart" width="200" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const navExpenses = document.getElementById('navExpenses');
+    const navROI = document.getElementById('navROI');
+    const expensesSection = document.getElementById('expensesSection');
+    const roiSection = document.getElementById('roiSection');
+
+    function showSection(section){
+      expensesSection.style.display = 'none';
+      roiSection.style.display = 'none';
+      section.style.display = 'block';
+    }
+
+    navExpenses.addEventListener('click', ()=>{ navExpenses.classList.add('active'); navROI.classList.remove('active'); showSection(expensesSection); });
+    navROI.addEventListener('click', ()=>{ navROI.classList.add('active'); navExpenses.classList.remove('active'); showSection(roiSection); });
+
+    showSection(expensesSection);
+
+    function formatRupee(n){ return '₹ '+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2}); }
+    function safeNum(val){ return Number(val)||0; }
+
+    let costChart, roiChart;
+
+    function updateCostChart(data){
+      const ctx = document.getElementById('costChart').getContext('2d');
+      if(costChart) costChart.destroy();
+      costChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: ['Seeds/Plants', 'Fertilizer', 'Water', 'Electricity', 'Pesticides'], datasets:[{label:'Cost Breakdown', data:data, backgroundColor:['#66bb6a','#81c784','#a5d6a7','#c8e6c9','#dcedc8']}] },
+        options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+      });
+    }
+
+    function updateROIChart(profit, expense){
+      const ctx = document.getElementById('roiChart').getContext('2d');
+      if(roiChart) roiChart.destroy();
+      roiChart = new Chart(ctx, {
+        type: 'doughnut',
+        data:{ labels:['Profit','Expense'], datasets:[{data:[profit>0?profit:0, expense], backgroundColor:['#3BAE5D','#C8E6C9']}] },
+        options:{ responsive:true, plugins:{legend:{position:'bottom'}} }
+      });
+    }
+
+    function calc(){
+      const seedQty = safeNum(document.getElementById('seedQty')?.value);
+      const seedRate = safeNum(document.getElementById('seedRate')?.value);
+      const fertQty = safeNum(document.getElementById('fertQty')?.value);
+      const fertRate = safeNum(document.getElementById('fertRate')?.value);
+      const waterUnits = safeNum(document.getElementById('waterUnits')?.value);
+      const waterRate = safeNum(document.getElementById('waterRate')?.value);
+      const elecUnits = safeNum(document.getElementById('elecUnits')?.value);
+      const elecRate = safeNum(document.getElementById('elecRate')?.value);
+      const pestQty = safeNum(document.getElementById('pestQty')?.value);
+      const pestRate = safeNum(document.getElementById('pestRate')?.value);
+
+      const seeds = seedQty*seedRate;
+      const fert = fertQty*fertRate;
+      const water = waterUnits*waterRate;
+      const elec = elecUnits*elecRate;
+      const pest = pestQty*pestRate;
+
+      const totalCost = seeds+fert+water+elec+pest;
+      updateCostChart([seeds,fert,water,elec,pest]);
+
+      document.getElementById('expenseDetails').innerHTML = `
+        Seeds: ${formatRupee(seeds)}<br>
+        Fertilizer: ${formatRupee(fert)}<br>
+        Water: ${formatRupee(water)}<br>
+        Electricity: ${formatRupee(elec)}<br>
+        Pesticides: ${formatRupee(pest)}
+      `;
+      document.getElementById('expenseDetailsROI').innerHTML = document.getElementById('expenseDetails').innerHTML;
+
+      return totalCost;
+    }
+
+    document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calc));
+    document.getElementById('saveCosts')?.addEventListener('click',calc);
+
+    document.getElementById('calcROI')?.addEventListener('click',()=>{
+      const expense = calc();
+      const area = safeNum(document.getElementById('landArea')?.value);
+      const unit = document.getElementById('landUnit')?.value;
+      const yieldKg = safeNum(document.getElementById('yieldKg')?.value);
+      const pricePerKg = safeNum(document.getElementById('pricePerKg')?.value);
+
+      const totalIncome = yieldKg * pricePerKg;
+      const profit = totalIncome - expense;
+      const roi = (profit / expense) * 100;
+      const breakEvenDays = Math.ceil((expense / totalIncome) * 365);
+
+      document.getElementById('profitAcre').innerText = `Profit / Acre: ${formatRupee(profit)}`;
+      document.getElementById('profitHectare').innerText = `Profit / Hectare: ${formatRupee(profit*2.47)}`;
+      document.getElementById('roiPercent').innerText = `ROI: ${roi.toFixed(2)}%`;
+      document.getElementById('breakEven').innerText = `Break-even: ${breakEvenDays} Days`;
+      document.getElementById('insight').innerText = `💡 Increase yield by ${(roi/10).toFixed(0)}% to boost ROI`;
+      updateROIChart(profit, expense);
+    });
+  </script>
+</body>
+</html>
